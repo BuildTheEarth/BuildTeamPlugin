@@ -3,6 +3,7 @@ package net.buildtheearth.modules.metrics;
 import com.influxdb.v3.client.InfluxDBClient;
 import lombok.Getter;
 import net.buildtheearth.modules.Module;
+import net.buildtheearth.modules.metrics.listeners.GeneratorGenerateEventListener;
 
 /**
  * Manages all things related to
@@ -33,6 +34,6 @@ public class MetricsModule extends Module {
 
     @Override
     public void registerListeners() {
-
+        registerListeners(new GeneratorGenerateEventListener());
     }
 }
