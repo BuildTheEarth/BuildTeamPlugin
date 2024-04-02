@@ -14,6 +14,7 @@ import com.sk89q.worldedit.world.block.BlockType;
 import lombok.Getter;
 import net.buildtheearth.modules.generator.GeneratorModule;
 import net.buildtheearth.modules.generator.utils.GeneratorUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -22,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Script {
 
@@ -41,6 +43,8 @@ public class Script {
     protected final LocalSession localSession;
     @Getter
     private int changes = 0;
+    @Getter
+    private final CompletableFuture<Boolean> completed;
 
 
     public Script(Player player, GeneratorComponent generatorComponent) {
@@ -50,6 +54,10 @@ public class Script {
         this.weWorld = BukkitAdapter.adapt(getPlayer().getWorld());
         this.actor = BukkitAdapter.adapt(getPlayer());
         this.localSession = WorldEdit.getInstance().getSessionManager().get(actor);
+
+        this.completed = new CompletableFuture<>();
+
+        Bukkit.getServer().getPluginManager().callEvent(new GeneratorGenerateEvent(player, generatorComponent.getGeneratorType(), region.getCenter(), completed));
 
         clearHistory();
         disableGmask();
@@ -63,6 +71,8 @@ public class Script {
 
         GeneratorModule.getInstance().getGeneratorCommands().add(new Command(this, blocks));
         GeneratorModule.getInstance().getPlayerHistory(getPlayer()).addHistoryEntry(new History.HistoryEntry(getGeneratorComponent().getGeneratorType(), changes));
+
+        completed.complete(true);
     }
 
 
